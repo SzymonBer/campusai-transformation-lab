@@ -1,5 +1,2 @@
 node_modules
 dist
-shots/*.png
-!shots/0[1356]*.png
-!shots/10_mobile.png

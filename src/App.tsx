@@ -1,5 +1,6 @@
 import { Suspense, useMemo, useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
+import { useProgress } from '@react-three/drei'
 import Scene from './Scene'
 import { ASSUMPTIONS, MODES, Mode, STAGES, simulate, fmtPLN, fmt1 } from './model'
 
@@ -40,13 +41,14 @@ export default function App() {
 
   return (
     <div className="app">
-      <Canvas shadows dpr={quality === 'high' ? [1, 1.75] : [0.75, 1]} gl={{ antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: true }}
-        camera={{ position: [-3, 12.5, 22], fov: 36, near: 0.5, far: 200 }}>
+      <Canvas shadows flat dpr={quality === 'high' ? [1, 1.75] : [0.75, 1]} gl={{ antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: true }}
+        camera={{ position: [-10.6, 2.55, 7.0], fov: 50, near: 0.05, far: 300 }}>
         <Suspense fallback={null}>
           <Scene {...{ mode, results, selected, hovered, setSelected: (i) => { setSelected(i) }, setHovered, exploded, tour, camKey, quality, setQuality }} />
         </Suspense>
       </Canvas>
 
+      <Loader />
       <header className="top">
         <div className="brand"><span className="logo">C</span><div><b>CampusAI</b> Transformation Lab<small>Dział sprzedaży przed i po adopcji AI</small></div></div>
         <div className="demo-badge" title="Wszystkie wartości pochodzą z modelu demonstracyjnego">DANE DEMONSTRACYJNE</div>
@@ -72,7 +74,7 @@ export default function App() {
           {mode !== 'automated' && <small>Działa w trybie „Częściowo zautomatyzowany”.</small>}
         </label>
         <div className="row">
-          <button className={exploded ? 'on' : ''} onClick={() => setExploded(v => !v)} data-testid="b-explode">Widok rozstrzelony <kbd>X</kbd></button>
+          <button className={exploded ? 'on' : ''} onClick={() => setExploded(v => !v)} data-testid="b-explode">Widok z góry: przepływ <kbd>X</kbd></button>
           <button className={tour ? 'on' : ''} onClick={() => setTour(v => !v)} data-testid="b-tour">Kamera filmowa <kbd>C</kbd></button>
         </div>
         <div className="row">
@@ -124,7 +126,7 @@ export default function App() {
           <div className="card" onClick={e => e.stopPropagation()}>
             <button className="x" onClick={() => setInfo(false)}>×</button>
             <h2>Założenia modelu <span className="tag">demonstracyjne</span></h2>
-            <p>Jeden model (<code>src/model.ts</code>) jednocześnie liczy wyniki w panelach i steruje sceną 3D: liczbą biurek, agentów AI, wysokością kolejek dokumentów i prędkością przepływu. Liczby są ilustracyjne, nie pochodzą z badań.</p>
+            <p>Jeden model (<code>src/model.ts</code>) jednocześnie liczy wyniki w panelach i steruje sceną 3D: liczbą osób przy biurkach w każdej strefie, liczbą agentów AI, stosami papieru na biurkach oraz gęstością i tempem przepływu dokumentów. Liczby są ilustracyjne, nie pochodzą z badań.</p>
             <table><thead><tr><th>Etap</th><th>h / zadanie (trad.)</th><th>Mnożnik z AI</th><th>Maks. automatyzacja</th><th>Agent</th></tr></thead>
               <tbody>{STAGES.map(s => <tr key={s.id}><td>{s.name}</td><td>{s.baseHours}</td><td>×{s.aiFactor}</td><td>{Math.round(s.automatable * 100)}%</td><td>{s.agentMinutes} min</td></tr>)}</tbody></table>
             <ul>
@@ -141,6 +143,14 @@ export default function App() {
       <footer className="hint">Kliknij stanowisko, aby zobaczyć szczegóły · przeciągnij, aby obracać</footer>
     </div>
   )
+}
+
+function Loader() {
+  const { progress, active } = useProgress()
+  const [gone, setGone] = useState(false)
+  useEffect(() => { if (!active && progress >= 100) { const t = setTimeout(() => setGone(true), 700); return () => clearTimeout(t) } }, [active, progress])
+  if (gone) return null
+  return <div className={`loader ${!active && progress >= 100 ? 'out' : ''}`} data-testid="loader"><div className="logo">C</div><b>CampusAI Transformation Lab</b><div className="lbar"><i style={{ width: `${progress}%` }} /></div><small>Ładowanie biura, ludzi i oświetlenia… {Math.round(progress)}%</small></div>
 }
 
 function Kpi({ label, value, d, good, testid }: { label: string; value: string; d: number; good: 'up' | 'down'; testid?: string }) {

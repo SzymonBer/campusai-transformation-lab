@@ -55,3 +55,9 @@ kbd{font-size:10px;border:1px solid currentColor;border-radius:4px;padding:0 4px
  .slabel{font-size:10px;padding:4px 6px}.sl-s{display:none}.hint{display:none}
  .detail{bottom:8px;left:8px;right:8px;padding:12px;z-index:5}.grid{grid-template-columns:repeat(2,1fr)}
 }
+
+.loader{position:absolute;inset:0;z-index:50;background:#08261d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .7s}
+.loader.out{opacity:0;pointer-events:none}.loader .logo{width:48px;height:48px;font-size:22px}
+.lbar{width:260px;height:4px;background:rgba(223,247,234,.15);border-radius:2px;overflow:hidden}.lbar i{display:block;height:100%;background:var(--lime);transition:width .3s}
+.loader small{opacity:.7}
+.slabel{background:rgba(250,250,247,.88);color:#0d3b2c;border-color:rgba(13,59,44,.12);box-shadow:0 6px 18px rgba(0,0,0,.12);backdrop-filter:blur(6px)}
